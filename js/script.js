@@ -3,7 +3,6 @@ toText = document.querySelector(".to-text"),
 exchageIcon = document.querySelector(".exchange"),
 selectTag = document.querySelectorAll("select"),
 icons = document.querySelectorAll(".row i");
-translateBtn = document.querySelector("button"),
 
 selectTag.forEach((tag, id) => {
     for (let country_code in countries) {
@@ -12,6 +11,13 @@ selectTag.forEach((tag, id) => {
         tag.insertAdjacentHTML("beforeend", option);
     }
 });
+
+selectTag.forEach(el => {
+    el.addEventListener("change", () =>{
+        translateText();
+    });
+});
+
 
 exchageIcon.addEventListener("click", () => {
     let tempText = fromText.value,
@@ -22,29 +28,31 @@ exchageIcon.addEventListener("click", () => {
     selectTag[1].value = tempLang;
 });
 
-fromText.addEventListener("keyup", () => {
-    if(!fromText.value) {
+fromText.addEventListener("keydown", () => {
+    if(fromText.value.length == 0) {
         toText.value = "";
+    } else {    
+        translateText();
     }
 });
 
-translateBtn.addEventListener("click", () => {
+function translateText() {
     let text = fromText.value.trim(),
     translateFrom = selectTag[0].value,
     translateTo = selectTag[1].value;
-    if(!text) return;
+    if (!text) return;
     toText.setAttribute("placeholder", "Translating...");
     let apiUrl = `https://api.mymemory.translated.net/get?q=${text}&langpair=${translateFrom}|${translateTo}`;
     fetch(apiUrl).then(res => res.json()).then(data => {
         toText.value = data.responseData.translatedText;
         data.matches.forEach(data => {
-            if(data.id === 0) {
+            if (data.id === 0) {
                 toText.value = data.translation;
             }
         });
         toText.setAttribute("placeholder", "Translation");
     });
-});
+}
 
 icons.forEach(icon => {
     icon.addEventListener("click", ({target}) => {
